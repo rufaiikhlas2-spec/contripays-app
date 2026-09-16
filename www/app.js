@@ -987,4 +987,86 @@ function confirmCalendarPayment(){
 
     var amount=Number(c.daily)||50;
 
-    var firstPayment=c.paymen
+    var firstPayment=c.payments.length===0;
+
+c.payments.push({
+ id:Date.now().toString(),
+ date:calendarPaymentDate,
+ amount:amount
+});
+
+if(firstPayment){
+ u.earnings=Number(u.earnings||0)+amount;
+}
+
+saveAccounts();
+
+closePaymentModal();
+
+alert("Payment recorded: "+money(amount));
+
+renderCalendar();
+renderPayments();
+renderContributors();
+renderPayouts();
+updateDashboard();
+
+if(selectedContributorId){
+ openContributorProfile(selectedContributorId);
+}
+}
+
+function closePaymentModal(){
+ if($("paymentModal"))
+  $("paymentModal").style.display="none";
+
+ calendarPaymentDate=null;
+}
+
+function formatCalendarDate(dateKey){
+ var parts=dateKey.split("-");
+
+ var d=new Date(
+  Number(parts[0]),
+  Number(parts[1])-1,
+  Number(parts[2])
+ );
+
+ return d.toLocaleDateString("en-US",{
+  weekday:"long",
+  month:"long",
+  day:"numeric",
+  year:"numeric"
+ });
+}
+
+function updateCalendarAction(){
+
+ var c=findContributor(selectedContributorId);
+ var action=$("calendarAction");
+
+ if(!c||!action)return;
+
+ var paidToday=(c.payments||[]).some(function(p){
+  return p.date===today();
+ });
+
+ if(paidToday){
+
+  action.textContent=
+   "Today's payment has been recorded.";
+
+  action.disabled=true;
+
+ }else{
+
+  action.textContent=
+   "Mark Today's Payment";
+
+  action.disabled=false;
+
+  action.onclick=function(){
+   openPaymentForDate(today());
+  };
+ }
+}
