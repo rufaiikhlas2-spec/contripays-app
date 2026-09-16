@@ -12,9 +12,7 @@ function save(){
 }
 
 function user(){
- return accounts.find(function(x){
-  return String(x.id)===String(currentUser);
- });
+ return accounts.find(function(x){return String(x.id)===String(currentUser)});
 }
 
 function money(n){
@@ -26,7 +24,7 @@ function today(){
  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 }
 
-function escapeHtml(s){
+function esc(s){
  return String(s||"").replace(/[&<>"']/g,function(c){
   return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c];
  });
@@ -57,10 +55,6 @@ function showScreen(id){
  hideAll();
  var x=$(id);
  if(x)x.style.display="block";
-}
-
-function getUser(){
- return user();
 }
 
 function loadUser(){
@@ -97,7 +91,7 @@ function registerAccount(){
   return;
  }
 
- if(accounts.some(function(x){return x.phone===phone;})){
+ if(accounts.some(function(x){return x.phone===phone})){
   alert("An account with this phone already exists.");
   return;
  }
@@ -108,16 +102,13 @@ function registerAccount(){
   organizer:organizer,
   phone:phone,
   password:password,
-  contributors:[],
-  payouts:[]
+  contributors:[]
  };
 
  accounts.push(a);
  save();
-
  currentUser=a.id;
  localStorage.setItem("contripays_current_user",currentUser);
-
  openMainApp();
 }
 
@@ -186,18 +177,17 @@ function addContributor(){
  save();
  closeContributorModal();
 
- $("contributorForm").reset();
+ if($("contributorForm"))$("contributorForm").reset();
 
  renderContributors();
  updateDashboard();
-
  alert("Contributor added successfully.");
 }
 
 function findContributor(id){
  var u=user();
- if(!u||!u.contributors)return null;
-
+ if(!u)return null;
+ if(!u.contributors)u.contributors=[];
  return u.contributors.find(function(c){
   return String(c.id)===String(id);
  });
@@ -206,18 +196,19 @@ function findContributor(id){
 function getBalance(c){
  if(!c)return 0;
 
- var total=0;
+ var balance=0;
 
  (c.payments||[]).forEach(function(p,i){
-  if(i>0)total+=Number(p.amount)||0;
+  if(i>0)balance+=Number(p.amount)||0;
  });
 
  (c.payouts||[]).forEach(function(p){
-  total-=Number(p.amount)||0;
+  balance-=Number(p.amount)||0;
  });
 
- return Math.max(0,total);
+ return Math.max(0,balance);
 }
+
 function renderContributors(){
  var u=user();
  var box=$("contributorsList");
@@ -232,37 +223,41 @@ function renderContributors(){
 
  box.innerHTML=list.map(function(c){
   return '<div class="contributor-card" onclick="openContributorProfile('+c.id+')">'+
-   '<div><strong>'+escapeHtml(c.name)+'</strong><br><small>'+escapeHtml(c.phone)+'</small></div>'+
+   '<div><strong>'+esc(c.name)+'</strong><br><small>'+esc(c.phone)+'</small></div>'+
    '<div><strong>'+money(getBalance(c))+'</strong><br><small>Balance</small></div>'+
   '</div>';
  }).join("");
 }
 
 function filterContributors(){
- var q=($("contributorSearch").value||"").toLowerCase();
- document.querySelectorAll(".contributor-card").forEach(function(card){
-  card.style.display=card.innerText.toLowerCase().includes(q)?"flex":"none";
+ var input=$("contributorSearch");
+ if(!input)return;
+
+ var q=input.value.toLowerCase();
+
+ document.querySelectorAll(".contributor-card").forEach(function(c){
+  c.style.display=c.innerText.toLowerCase().includes(q)?"flex":"none";
  });
 }
 
 function openContributorProfile(id){
  selectedContributorId=id;
+
  var c=findContributor(id);
  var box=$("contributorProfile");
 
  if(!c||!box)return;
 
- var payments=c.payments||[];
- var paid=payments.reduce(function(s,p){
+ var total=(c.payments||[]).reduce(function(s,p){
   return s+(Number(p.amount)||0);
  },0);
 
  box.innerHTML=
  '<div class="profile-card">'+
- '<h2>'+escapeHtml(c.name)+'</h2>'+
- '<p>'+escapeHtml(c.phone)+'</p>'+
+ '<h2>'+esc(c.name)+'</h2>'+
+ '<p>'+esc(c.phone)+'</p>'+
  '<p>Daily contribution: <strong>'+money(c.daily)+'</strong></p>'+
- '<p>Total paid: <strong>'+money(paid)+'</strong></p>'+
+ '<p>Total paid: <strong>'+money(total)+'</strong></p>'+
  '<p>Current balance: <strong>'+money(getBalance(c))+'</strong></p>'+
  '<button class="primary-btn" onclick="openCalendar('+c.id+')">Open Calendar</button>'+
  '<button class="primary-btn" onclick="makeContributorPayout('+c.id+')">Pay Out</button>'+
@@ -272,11 +267,11 @@ function openContributorProfile(id){
 }
 
 function recordPayment(c,date){
- if(!c)return;
+ if(!c)return false;
 
  if(!c.payments)c.payments=[];
 
- if(c.payments.some(function(p){return p.date===date;})){
+ if(c.payments.some(function(p){return p.date===date})){
   return false;
  }
 
@@ -291,7 +286,8 @@ function recordPayment(c,date){
 
 function choosePaymentContributor(){
  var u=user();
- if(!u||!u.contributors||!u.contributors.length){
+
+ if(!u||!(u.contributors||[]).length){
   alert("Add a contributor first.");
   return;
  }
@@ -302,10 +298,9 @@ function choosePaymentContributor(){
 
  var choice=prompt("Choose contributor:\n\n"+names);
 
- if(!choice)return;
+ if(choice===null)return;
 
- var index=Number(choice)-1;
- var c=u.contributors[index];
+ var c=u.contributors[Number(choice)-1];
 
  if(!c){
   alert("Invalid choice.");
@@ -324,6 +319,7 @@ function choosePaymentContributor(){
 function renderPayments(){
  var u=user();
  var box=$("paymentsList");
+
  if(!box||!u)return;
 
  var rows=[];
@@ -338,11 +334,8 @@ function renderPayments(){
   });
  });
 
- if(paymentFilter!=="all"){
-  rows=rows.filter(function(p){
-   if(paymentFilter==="today")return p.date===today();
-   return true;
-  });
+ if(paymentFilter==="today"){
+  rows=rows.filter(function(p){return p.date===today()});
  }
 
  rows.sort(function(a,b){
@@ -356,7 +349,7 @@ function renderPayments(){
 
  box.innerHTML=rows.map(function(p){
   return '<div class="payment-row">'+
-   '<div><strong>'+escapeHtml(p.name)+'</strong><br><small>'+p.date+'</small></div>'+
+   '<div><strong>'+esc(p.name)+'</strong><br><small>'+p.date+'</small></div>'+
    '<strong>'+money(p.amount)+'</strong>'+
   '</div>';
  }).join("");
@@ -367,8 +360,17 @@ function setPaymentFilter(filter){
  renderPayments();
 }
 
+function makePayout(){
+ if(selectedContributorId){
+  makeContributorPayout(selectedContributorId);
+ }else{
+  alert("Open a contributor profile first.");
+ }
+}
+
 function makeContributorPayout(id){
  var c=findContributor(id);
+
  if(!c)return;
 
  var balance=getBalance(c);
@@ -401,8 +403,7 @@ function makeContributorPayout(id){
  c.payouts.push({
   id:Date.now(),
   date:today(),
-  amount:amount,
-  contributorId:c.id
+  amount:amount
  });
 
  save();
@@ -414,14 +415,6 @@ function makeContributorPayout(id){
  alert("Payout recorded successfully.");
 }
 
-function makePayout(){
- if(selectedContributorId){
-  makeContributorPayout(selectedContributorId);
- }else{
-  alert("Open a contributor profile first.");
- }
-}
-
 function renderPayouts(){
  var u=user();
  var box=$("payoutsList");
@@ -429,9 +422,15 @@ function renderPayouts(){
  if(!box||!u)return;
 
  var rows=[];
+ var pending=0;
+ var completed=0;
 
  (u.contributors||[]).forEach(function(c){
+  pending+=getBalance(c);
+
   (c.payouts||[]).forEach(function(p){
+   completed+=Number(p.amount)||0;
+
    rows.push({
     name:c.name,
     date:p.date,
@@ -440,18 +439,11 @@ function renderPayouts(){
   });
  });
 
- var pending=0;
+ if($("payoutPendingTotal"))
+  $("payoutPendingTotal").textContent=money(pending);
 
- (u.contributors||[]).forEach(function(c){
-  pending+=getBalance(c);
- });
-
- var completed=rows.reduce(function(s,p){
-  return s+(Number(p.amount)||0);
- },0);
-
- if($("payoutPendingTotal"))$("payoutPendingTotal").textContent=money(pending);
- if($("payoutCompletedTotal"))$("payoutCompletedTotal").textContent=money(completed);
+ if($("payoutCompletedTotal"))
+  $("payoutCompletedTotal").textContent=money(completed);
 
  if(!rows.length){
   box.innerHTML="<p>No payouts recorded.</p>";
@@ -464,14 +456,16 @@ function renderPayouts(){
 
  box.innerHTML=rows.map(function(p){
   return '<div class="payment-row">'+
-   '<div><strong>'+escapeHtml(p.name)+'</strong><br><small>'+p.date+'</small></div>'+
+   '<div><strong>'+esc(p.name)+'</strong><br><small>'+p.date+'</small></div>'+
    '<strong>'+money(p.amount)+'</strong>'+
   '</div>';
  }).join("");
- function openCalendar(id){
- selectedContributorId=id;
- var c=findContributor(id);
+}
 
+function openCalendar(id){
+ selectedContributorId=id;
+
+ var c=findContributor(id);
  if(!c)return;
 
  if($("calendarContributorName"))
@@ -495,7 +489,7 @@ function nextMonth(){
  renderCalendar();
 }
 
-function formatCalendarDate(d){
+function dateText(d){
  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 }
 
@@ -503,28 +497,24 @@ function renderCalendar(){
  var c=findContributor(selectedContributorId);
  if(!c)return;
 
- var year=calendarDate.getFullYear();
- var month=calendarDate.getMonth();
+ var y=calendarDate.getFullYear();
+ var m=calendarDate.getMonth();
+ var last=new Date(y,m+1,0);
 
- var title=calendarDate.toLocaleString("default",{
-  month:"long",
-  year:"numeric"
- });
+ if($("calendarMonth"))
+  $("calendarMonth").textContent=calendarDate.toLocaleString("default",{month:"long",year:"numeric"});
 
- if($("calendarMonth"))$("calendarMonth").textContent=title;
- if($("calendarDailyAmount"))$("calendarDailyAmount").textContent=money(c.daily);
-
- var first=new Date(year,month,1);
- var last=new Date(year,month+1,0);
+ if($("calendarDailyAmount"))
+  $("calendarDailyAmount").textContent=money(c.daily);
 
  var paid=0;
  var total=0;
-
- var days="";
+ var html="";
 
  for(var i=1;i<=last.getDate();i++){
-  var d=new Date(year,month,i);
-  var date=formatCalendarDate(d);
+
+  var d=new Date(y,m,i);
+  var date=dateText(d);
 
   var payment=(c.payments||[]).find(function(p){
    return p.date===date;
@@ -535,29 +525,21 @@ function renderCalendar(){
    total+=Number(payment.amount)||0;
   }
 
-  days+=
-   '<button class="calendar-day '+(payment?"paid":"")+'" '+
-   'onclick="openPaymentForDate(\''+date+'\')">'+
+  html+='<button class="calendar-day '+(payment?"paid":"")+
+   '" onclick="openPaymentForDate(\''+date+'\')">'+
    '<span>'+i+'</span>'+
    (payment?'<small>Paid</small>':'')+
    '</button>';
  }
 
- if($("calendarDays"))$("calendarDays").innerHTML=days;
- if($("calendarPaidDays"))$("calendarPaidDays").textContent=paid;
- if($("calendarTotalAmount"))$("calendarTotalAmount").textContent=money(total);
+ if($("calendarDays"))
+  $("calendarDays").innerHTML=html;
 
- updateCalendarAction();
-}
+ if($("calendarPaidDays"))
+  $("calendarPaidDays").textContent=paid;
 
-function updateCalendarAction(){
- var c=findContributor(selectedContributorId);
- if(!c)return;
-
- if($("calendarAction")){
-  $("calendarAction").textContent=
-   "Mark payment for "+c.name;
- }
+ if($("calendarTotalAmount"))
+  $("calendarTotalAmount").textContent=money(total);
 }
 
 function openPaymentForDate(date){
@@ -574,8 +556,8 @@ function openPaymentForDate(date){
   $("paymentModalTitle").textContent=paid?"Payment Recorded":"Mark Payment";
 
  if($("paymentModalText"))
-  $("paymentModalText").textContent=
-   paid?"This day is already paid.":"Record this day's contribution.";
+  $("paymentModalText").textContent=paid?
+   "This day is already paid.":"Record this day's contribution.";
 
  if($("paymentModalAmount"))
   $("paymentModalAmount").textContent=money(c.daily);
@@ -589,7 +571,9 @@ function openPaymentForDate(date){
  }
 
  var modal=$("paymentModal");
- if(modal)modal.style.display="flex";
+
+ if(modal)
+  modal.style.display="flex";
 }
 
 function confirmCalendarPayment(){
@@ -611,7 +595,9 @@ function confirmCalendarPayment(){
 
 function closePaymentModal(){
  var modal=$("paymentModal");
- if(modal)modal.style.display="none";
+
+ if(modal)
+  modal.style.display="none";
 
  calendarPaymentDate=null;
 }
@@ -619,25 +605,28 @@ function closePaymentModal(){
 function calculateFinancials(){
  var u=user();
 
+ if(!u){
+  return{
+   received:0,
+   earnings:0,
+   disbursed:0,
+   outstanding:0
+  };
+ }
+
  var received=0;
  var earnings=0;
  var disbursed=0;
 
- if(!u)return{
-  received:0,
-  earnings:0,
-  disbursed:0,
-  outstanding:0
- };
-
  (u.contributors||[]).forEach(function(c){
-  var payments=c.payments||[];
 
-  payments.forEach(function(p,i){
+  (c.payments||[]).forEach(function(p,i){
    var amount=Number(p.amount)||0;
+
    received+=amount;
 
-   if(i===0)earnings+=amount;
+   if(i===0)
+    earnings+=amount;
   });
 
   (c.payouts||[]).forEach(function(p){
@@ -653,6 +642,22 @@ function calculateFinancials(){
  };
 }
 
+function renderReports(){
+ var f=calculateFinancials();
+
+ if($("reportReceived"))
+  $("reportReceived").textContent=money(f.received);
+
+ if($("reportDisbursed"))
+  $("reportDisbursed").textContent=money(f.disbursed);
+
+ if($("reportEarnings"))
+  $("reportEarnings").textContent=money(f.earnings);
+
+ if($("reportOutstanding"))
+  $("reportOutstanding").textContent=money(f.outstanding);
+}
+
 function renderRecentActivity(){
  var u=user();
  var box=$("recentActivity");
@@ -664,8 +669,9 @@ function renderRecentActivity(){
  (u.contributors||[]).forEach(function(c){
   (c.payments||[]).forEach(function(p){
    rows.push({
-    text:c.name+" paid "+money(p.amount),
-    date:p.date
+    name:c.name,
+    date:p.date,
+    amount:p.amount
    });
   });
  });
@@ -682,55 +688,151 @@ function renderRecentActivity(){
  }
 
  box.innerHTML=rows.map(function(r){
-  return "<div class=\"activity-row\">"+
-   "<strong>"+escapeHtml(r.text)+"</strong><br>"+
-   "<small>"+r.date+"</small>"+
-  "</div>";
+  return '<div class="activity-row">'+
+   '<strong>'+esc(r.name)+' paid '+money(r.amount)+'</strong><br>'+
+   '<small>'+r.date+'</small>'+
+  '</div>';
  }).join("");
 }
 
 function updateDashboard(){
  var u=user();
+
  if(!u)return;
 
- var f=calculateFinancials();
  var contributors=u.contributors||[];
+ var f=calculateFinancials();
 
  var active=contributors.filter(function(c){
   return (c.payments||[]).length>0;
  }).length;
 
- var month=new Date().toISOString().slice(0,7);
+ var month=today().slice(0,7);
  var monthly=0;
+ var dailyTotal=0;
 
  contributors.forEach(function(c){
+
   (c.payments||[]).forEach(function(p){
    if(p.date.indexOf(month)===0)
     monthly+=Number(p.amount)||0;
+
+   if(p.date===today())
+    dailyTotal+=Number(p.amount)||0;
   });
+
  });
 
  if($("dashboardOrganizer"))
   $("dashboardOrganizer").textContent=u.organizer||u.name;
 
  if($("todayTotal"))
-  $("todayTotal").textContent=money(
+  $("todayTotal").textContent=money(dailyTotal);
+
+ if($("monthlyTotal"))
+  $("monthlyTotal").textContent=money(monthly);
+
+ if($("totalContributors"))
+  $("totalContributors").textContent=contributors.length;
+
+ if($("activeContributors"))
+  $("activeContributors").textContent=active;
+
+ if($("pendingPayouts"))
+  $("pendingPayouts").textContent=money(
    contributors.reduce(function(s,c){
-    return s+(c.payments||[]).some(function(p){
-     return p.date===today();
-    })?(Number(c.daily)||50):0;
+    return s+getBalance(c);
    },0)
   );
 
- if($("monthlyTotal"))$("monthlyTotal").textContent=money(monthly);
- if($("totalContributors"))$("totalContributors").textContent=contributors.length;
- if($("activeContributors"))$("activeContributors").textContent=active;
- if($("pendingPayouts"))$("pendingPayouts").textContent=money(
-  contributors.reduce(function(s,c){return s+getBalance(c)},0)
- );
- if($("organizerEarnings"))$("organizerEarnings").textContent=money(f.earnings);
+ if($("organizerEarnings"))
+  $("organizerEarnings").textContent=money(f.earnings);
 
  renderRecentActivity();
  renderReports();
 }
-                    }
+
+function saveSettings(){
+ var u=user();
+
+ if(!u)return;
+
+ if($("settingsOrganizerName"))
+  u.organizer=$("settingsOrganizerName").value.trim();
+
+ if($("settingsPersonalName"))
+  u.name=$("settingsPersonalName").value.trim();
+
+ if($("settingsPhone"))
+  u.phone=$("settingsPhone").value.trim();
+
+ save();
+
+ if($("settingsGroupText"))
+  $("settingsGroupText").textContent=u.organizer;
+
+ if($("settingsNameText"))
+  $("settingsNameText").textContent=u.name;
+
+ updateDashboard();
+
+ alert("Settings saved.");
+}
+
+function loadSettings(){
+ var u=user();
+
+ if(!u)return;
+
+ if($("settingsOrganizerName"))
+  $("settingsOrganizerName").value=u.organizer||"";
+
+ if($("settingsPersonalName"))
+  $("settingsPersonalName").value=u.name||"";
+
+ if($("settingsPhone"))
+  $("settingsPhone").value=u.phone||"";
+
+ if($("settingsGroupText"))
+  $("settingsGroupText").textContent=u.organizer||"";
+
+ if($("settingsNameText"))
+  $("settingsNameText").textContent=u.name||"";
+}
+
+document.addEventListener("DOMContentLoaded",function(){
+
+ var loginForm=$("loginForm");
+
+ if(loginForm){
+  loginForm.addEventListener("submit",function(e){
+   e.preventDefault();
+   loginAccount();
+  });
+ }
+
+ var registerForm=$("registerForm");
+
+ if(registerForm){
+  registerForm.addEventListener("submit",function(e){
+   e.preventDefault();
+   registerAccount();
+  });
+ }
+
+ var contributorForm=$("contributorForm");
+
+ if(contributorForm){
+  contributorForm.addEventListener("submit",function(e){
+   e.preventDefault();
+   addContributor();
+  });
+ }
+
+ if(currentUser&&user()){
+  openMainApp();
+  loadSettings();
+ }else{
+  showWelcome();
+ }
+});
