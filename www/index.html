@@ -1,773 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#00a86b">
-    <title>ContriPay</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ContriPays</title>
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<!-- =========================
-     WELCOME SCREEN
-========================= -->
-<section id="welcomeScreen" class="screen welcome-screen">
+<div id="welcomeScreen" class="screen welcome">
+  <div class="logo">₦</div>
+  <h1>ContriPays</h1>
+  <p>Simple contribution management</p>
+  <button class="primary-btn" onclick="openRegister()">Create Account</button>
+  <button class="secondary-btn" onclick="openLogin()">Log In</button>
+</div>
 
-    <div class="welcome-top">
-        <div class="app-mark">C</div>
-        <span>ContriPay</span>
-    </div>
-
-    <div class="welcome-content">
-        <div class="welcome-icon">
-            <span>₦</span>
-        </div>
-
-        <h1>Manage contributions<br>with confidence.</h1>
-
-        <p>
-            Keep track of daily contributions, payment calendars,
-            payouts and your group records — all in one place.
-        </p>
-    </div>
-
-    <div class="welcome-actions">
-        <button class="primary-btn" onclick="openRegister()">
-            Create Account
-        </button>
-
-        <button class="secondary-btn" onclick="openLogin()">
-            Log In
-        </button>
-    </div>
-
-    <p class="developer-credit">
-        Developed by <strong>Rufai Ikhlas Ajibola</strong>
-    </p>
-
-</section>
-
-
-<!-- =========================
-     LOGIN SCREEN
-========================= -->
-<section id="loginScreen" class="screen auth-screen" style="display:none;">
-
-    <button class="back-btn" onclick="showWelcome()">‹</button>
-
-    <div class="auth-header">
-        <div class="small-mark">C</div>
-        <h2>Welcome back</h2>
-        <p>Log in to manage your contribution group.</p>
-    </div>
-
-    <form id="loginForm" class="auth-form">
-
-        <label>Phone Number</label>
-        <input
-            type="tel"
-            id="loginPhone"
-            placeholder="08012345678"
-            autocomplete="tel"
-        >
-
-        <label>Password</label>
-        <input
-            type="password"
-            id="loginPassword"
-            placeholder="Enter your password"
-            autocomplete="current-password"
-        >
-
-        <button type="submit" class="primary-btn">
-            Log In
-        </button>
-
+<div id="loginScreen" class="screen form-screen">
+  <div class="card">
+    <h2>Welcome Back</h2>
+    <p>Log in to your ContriPays account.</p>
+    <form id="loginForm">
+      <input id="loginPhone" type="tel" placeholder="Phone number" required>
+      <input id="loginPassword" type="password" placeholder="Password" required>
+      <button class="primary-btn" type="submit">Log In</button>
     </form>
+    <button class="link-btn" onclick="openRegister()">Create an account</button>
+    <button class="link-btn" onclick="showWelcome()">Back</button>
+  </div>
+</div>
 
-    <p class="switch-text">
-        Don't have an account?
-        <button onclick="openRegister()">Create Account</button>
-    </p>
-
-</section>
-
-
-<!-- =========================
-     REGISTER SCREEN
-========================= -->
-<section id="registerScreen" class="screen auth-screen" style="display:none;">
-
-    <button class="back-btn" onclick="showWelcome()">‹</button>
-
-    <div class="auth-header">
-        <div class="small-mark">C</div>
-        <h2>Create your account</h2>
-        <p>Set up your contribution management account.</p>
-    </div>
-
-    <form id="registerForm" class="auth-form">
-
-        <label>Your Full Name</label>
-        <input
-            type="text"
-            id="registerName"
-            placeholder="Enter your name"
-            autocomplete="name"
-        >
-
-        <label>Organizer / Group Name</label>
-        <input
-            type="text"
-            id="registerOrganizer"
-            placeholder="e.g. Amina Contributions"
-        >
-
-        <small class="input-help">
-            This is the name ContriPay will display for your group.
-        </small>
-
-        <label>Phone Number</label>
-        <input
-            type="tel"
-            id="registerPhone"
-            placeholder="08012345678"
-            autocomplete="tel"
-        >
-
-        <label>Password</label>
-        <input
-            type="password"
-            id="registerPassword"
-            placeholder="Create a password"
-            autocomplete="new-password"
-        >
-
-        <label>Confirm Password</label>
-        <input
-            type="password"
-            id="registerConfirm"
-            placeholder="Confirm your password"
-            autocomplete="new-password"
-        >
-
-        <button type="submit" class="primary-btn">
-            Create Account
-        </button>
-
+<div id="registerScreen" class="screen form-screen">
+  <div class="card">
+    <h2>Create Account</h2>
+    <p>Set up your contribution account.</p>
+    <form id="registerForm">
+      <input id="registerName" placeholder="Your name" required>
+      <input id="registerOrganizer" placeholder="Group / Organizer name" required>
+      <input id="registerPhone" type="tel" placeholder="Phone number" required>
+      <input id="registerPassword" type="password" placeholder="Password" required>
+      <input id="registerConfirm" type="password" placeholder="Confirm password" required>
+      <button class="primary-btn" type="submit">Create Account</button>
     </form>
+    <button class="link-btn" onclick="openLogin()">Already have an account?</button>
+    <button class="link-btn" onclick="showWelcome()">Back</button>
+  </div>
+</div>
 
-    <p class="switch-text">
-        Already have an account?
-        <button onclick="openLogin()">Log In</button>
-    </p>
+<div id="mainScreen" class="screen">
 
+<header class="topbar">
+  <div>
+    <small>Welcome</small>
+    <h2 id="dashboardOrganizer">ContriPays</h2>
+  </div>
+  <div class="avatar" id="profileInitial">C</div>
+</header>
+
+<main>
+
+<section id="dashboardScreen" class="app-section">
+  <h2>Dashboard</h2>
+
+  <div class="stats">
+    <div class="stat"><small>Today</small><strong id="todayTotal">₦0</strong></div>
+    <div class="stat"><small>This Month</small><strong id="monthlyTotal">₦0</strong></div>
+    <div class="stat"><small>Contributors</small><strong id="totalContributors">0</strong></div>
+    <div class="stat"><small>Active</small><strong id="activeContributors">0</strong></div>
+    <div class="stat"><small>Pending Payout</small><strong id="pendingPayouts">₦0</strong></div>
+    <div class="stat"><small>Your Earnings</small><strong id="organizerEarnings">₦0</strong></div>
+  </div>
+
+  <button class="primary-btn" onclick="choosePaymentContributor()">Record Today's Payment</button>
+
+  <div class="card">
+    <h3>Recent Activity</h3>
+    <div id="recentActivity">No recent activity.</div>
+  </div>
 </section>
 
-
-<!-- =========================
-     MAIN APPLICATION
-========================= -->
-<section id="mainScreen" class="app-screen" style="display:none;">
-
-    <!-- TOP BAR -->
-    <header class="app-header">
-
-        <div>
-            <span class="greeting">Good morning</span>
-            <h2 id="dashboardOrganizer">My Group</h2>
-        </div>
-
-        <button class="profile-button" onclick="showScreen('settingsScreen')">
-            <span id="profileInitial">C</span>
-        </button>
-
-    </header>
-
-
-    <!-- =====================
-         DASHBOARD
-    ====================== -->
-    <div id="dashboardScreen" class="app-page">
-
-        <div class="balance-card">
-
-            <div class="balance-top">
-                <span>Today's Contributions</span>
-                <span class="eye-icon">•••</span>
-            </div>
-
-            <h1 id="todayTotal">₦0</h1>
-
-            <div class="balance-bottom">
-                <span>Monthly total</span>
-                <strong id="monthlyTotal">₦0</strong>
-            </div>
-
-        </div>
-
-
-        <div class="quick-actions">
-
-            <button onclick="showScreen('contributorsScreen')">
-                <span class="quick-icon">+</span>
-                <small>Add</small>
-            </button>
-
-            <button onclick="showScreen('contributorsScreen')">
-                <span class="quick-icon">👥</span>
-                <small>Contributors</small>
-            </button>
-
-            <button onclick="showScreen('payoutsScreen')">
-                <span class="quick-icon">₦</span>
-                <small>Payouts</small>
-            </button>
-
-            <button onclick="showScreen('reportsScreen')">
-                <span class="quick-icon">▥</span>
-                <small>Reports</small>
-            </button>
-
-        </div>
-
-
-        <div class="section-title">
-            <h3>Overview</h3>
-        </div>
-
-        <div class="stats-grid">
-
-            <div class="stat-card">
-                <span>Contributors</span>
-                <strong id="totalContributors">0</strong>
-                <small>Total</small>
-            </div>
-
-            <div class="stat-card">
-                <span>Active</span>
-                <strong id="activeContributors">0</strong>
-                <small>Active groups</small>
-            </div>
-
-            <div class="stat-card">
-                <span>Pending</span>
-                <strong id="pendingPayouts">₦0</strong>
-                <small>Payouts</small>
-            </div>
-
-            <div class="stat-card">
-                <span>Your Earnings</span>
-                <strong id="organizerEarnings">₦0</strong>
-                <small>This month</small>
-            </div>
-
-        </div>
-
-
-        <div class="section-title">
-            <h3>Recent Activity</h3>
-        </div>
-
-        <div id="recentActivity" class="activity-card">
-            <div class="empty-state">
-                <div>◎</div>
-                <p>No activity yet</p>
-                <small>Payments will appear here.</small>
-            </div>
-        </div>
-
-    </div>
-
-
-    <!-- =====================
-         CONTRIBUTORS
-    ====================== -->
-    <div id="contributorsScreen" class="app-page" style="display:none;">
-
-        <div class="page-heading">
-            <div>
-                <span>Management</span>
-                <h2>Contributors</h2>
-            </div>
-
-            <button class="add-round-btn" onclick="openAddContributor()">
-                +
-            </button>
-        </div>
-
-        <div class="search-box">
-            <span>⌕</span>
-            <input
-                type="search"
-                id="contributorSearch"
-                placeholder="Search contributors..."
-                oninput="renderContributors()"
-            >
-        </div>
-
-        <div id="contributorsList" class="contributors-list">
-
-            <div class="empty-state large">
-                <div>👥</div>
-                <h3>No contributors yet</h3>
-                <p>Add your first contributor to begin.</p>
-
-                <button class="primary-btn small-btn"
-                        onclick="openAddContributor()">
-                    Add Contributor
-                </button>
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- =====================
-         CONTRIBUTOR PROFILE
-    ====================== -->
-    <div id="contributorProfileScreen" class="app-page" style="display:none;">
-
-        <button class="page-back" onclick="showScreen('contributorsScreen')">
-            ‹ Contributors
-        </button>
-
-        <div id="contributorProfile"></div>
-
-    </div>
-
-
-    <!-- =====================
-         CALENDAR
-    ====================== -->
-    <div id="calendarScreen" class="app-page" style="display:none;">
-
-        <button class="page-back" onclick="backToContributorProfile()">
-            ‹ Contributor
-        </button>
-
-        <div class="calendar-header">
-
-            <div>
-                <span>Payment Calendar</span>
-                <h2 id="calendarContributorName">Contributor</h2>
-            </div>
-
-            <div class="calendar-month">
-                <button onclick="previousMonth()">‹</button>
-                <strong id="calendarMonth">September 2026</strong>
-                <button onclick="nextMonth()">›</button>
-            </div>
-
-        </div>
-
-
-        <div class="calendar-summary">
-
-            <div>
-                <span>Daily</span>
-                <strong id="calendarDailyAmount">₦0</strong>
-            </div>
-
-            <div>
-                <span>Paid</span>
-                <strong id="calendarPaidDays">0 days</strong>
-            </div>
-
-            <div>
-                <span>Total</span>
-                <strong id="calendarTotalAmount">₦0</strong>
-            </div>
-
-        </div>
-
-
-        <div class="calendar-box">
-
-            <div class="calendar-weekdays">
-                <span>Sun</span>
-                <span>Mon</span>
-                <span>Tue</span>
-                <span>Wed</span>
-                <span>Thu</span>
-                <span>Fri</span>
-                <span>Sat</span>
-            </div>
-
-            <div id="calendarDays" class="calendar-days"></div>
-
-        </div>
-
-
-        <div class="calendar-legend">
-
-            <span>
-                <i class="legend paid"></i>
-                Paid
-            </span>
-
-            <span>
-                <i class="legend today"></i>
-                Today
-            </span>
-
-            <span>
-                <i class="legend unpaid"></i>
-                Unpaid
-            </span>
-
-        </div>
-
-
-        <div id="calendarAction" class="calendar-action"></div>
-
-    </div>
-
-
-    <!-- =====================
-         PAYMENTS
-    ====================== -->
-    <div id="paymentsScreen" class="app-page" style="display:none;">
-
-        <div class="page-heading">
-            <div>
-                <span>Contribution records</span>
-                <h2>Payments</h2>
-            </div>
-        </div>
-
-        <div class="filter-tabs">
-            <button class="active">All</button>
-            <button>Today</button>
-            <button>This Month</button>
-        </div>
-
-        <div id="paymentsList" class="records-list"></div>
-
-    </div>
-
-
-    <!-- =====================
-         PAYOUTS
-    ====================== -->
-    <div id="payoutsScreen" class="app-page" style="display:none;">
-
-        <div class="page-heading">
-            <div>
-                <span>Monthly settlement</span>
-                <h2>Payouts</h2>
-            </div>
-        </div>
-
-        <div class="payout-summary-card">
-
-            <span>Total Pending Payouts</span>
-            <h1 id="payoutPendingTotal">₦0</h1>
-
-            <div>
-                <span>Completed</span>
-                <strong id="payoutCompletedTotal">₦0</strong>
-            </div>
-
-        </div>
-
-        <div id="payoutsList" class="records-list"></div>
-
-    </div>
-
-
-    <!-- =====================
-         REPORTS
-    ====================== -->
-    <div id="reportsScreen" class="app-page" style="display:none;">
-
-        <div class="page-heading">
-            <div>
-                <span>Financial overview</span>
-                <h2>Reports</h2>
-            </div>
-        </div>
-
-        <div class="report-card">
-            <span>Total Received</span>
-            <strong id="reportReceived">₦0</strong>
-        </div>
-
-        <div class="report-card">
-            <span>Total Disbursed</span>
-            <strong id="reportDisbursed">₦0</strong>
-        </div>
-
-        <div class="report-card">
-            <span>Organizer Earnings</span>
-            <strong id="reportEarnings">₦0</strong>
-        </div>
-
-        <div class="report-card">
-            <span>Outstanding</span>
-            <strong id="reportOutstanding">₦0</strong>
-        </div>
-
-    </div>
-
-
-    <!-- =====================
-         NOTIFICATIONS
-    ====================== -->
-    <div id="notificationsScreen" class="app-page" style="display:none;">
-
-        <div class="page-heading">
-            <div>
-                <span>Updates</span>
-                <h2>Notifications</h2>
-            </div>
-        </div>
-
-        <div id="notificationsList" class="notifications-list">
-
-            <div class="empty-state large">
-                <div>🔔</div>
-                <h3>No notifications</h3>
-                <p>Your important updates will appear here.</p>
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- =====================
-         SETTINGS
-    ====================== -->
-    <div id="settingsScreen" class="app-page" style="display:none;">
-
-        <div class="page-heading">
-            <div>
-                <span>Account</span>
-                <h2>Settings</h2>
-            </div>
-        </div>
-
-
-        <div class="profile-card">
-
-            <div class="profile-avatar" id="settingsInitial">
-                C
-            </div>
-
-            <div>
-                <strong id="settingsOrganizerName">My Group</strong>
-                <span id="settingsPersonalName">Your Name</span>
-            </div>
-
-        </div>
-
-
-        <div class="settings-section">
-
-            <h3>Group Information</h3>
-
-            <button class="settings-item" onclick="editOrganizerName()">
-                <span>
-                    <strong>Organizer / Group Name</strong>
-                    <small id="settingsGroupText">My Group</small>
-                </span>
-                <b>›</b>
-            </button>
-
-            <button class="settings-item" onclick="editPersonalName()">
-                <span>
-                    <strong>Personal Name</strong>
-                    <small id="settingsNameText">Your Name</small>
-                </span>
-                <b>›</b>
-            </button>
-
-        </div>
-
-
-        <div class="settings-section">
-
-            <h3>Account</h3>
-
-            <div class="settings-item static">
-                <span>
-                    <strong>Phone Number</strong>
-                    <small id="settingsPhone">—</small>
-                </span>
-            </div>
-
-        </div>
-
-
-        <div class="settings-section">
-
-            <h3>App</h3>
-
-            <button class="settings-item">
-                <span>
-                    <strong>Currency</strong>
-                    <small>Nigerian Naira (₦)</small>
-                </span>
-                <b>›</b>
-            </button>
-
-            <button class="settings-item">
-                <span>
-                    <strong>About ContriPay</strong>
-                    <small>Version 1.0</small>
-                </span>
-                <b>›</b>
-            </button>
-
-        </div>
-
-
-        <button class="logout-btn" onclick="logout()">
-            Log Out
-        </button>
-
-        <p class="developer-credit settings-credit">
-            Developed by <strong>Rufai Ikhlas Ajibola</strong>
-        </p>
-
-    </div>
-
-
-    <!-- =====================
-         BOTTOM NAVIGATION
-    ====================== -->
-    <nav class="bottom-nav">
-
-        <button class="nav-item active"
-                onclick="showScreen('dashboardScreen')">
-            <span>⌂</span>
-            <small>Home</small>
-        </button>
-
-        <button class="nav-item"
-                onclick="showScreen('contributorsScreen')">
-            <span>♙</span>
-            <small>People</small>
-        </button>
-
-        <button class="nav-item"
-                onclick="showScreen('paymentsScreen')">
-            <span>₦</span>
-            <small>Payments</small>
-        </button>
-
-        <button class="nav-item"
-                onclick="showScreen('payoutsScreen')">
-            <span>▣</span>
-            <small>Payouts</small>
-        </button>
-
-        <button class="nav-item"
-                onclick="showScreen('settingsScreen')">
-            <span>⚙</span>
-            <small>Settings</small>
-        </button>
-
-    </nav>
-
+<section id="contributorsScreen" class="app-section">
+  <h2>Contributors</h2>
+  <input id="contributorSearch" oninput="filterContributors()" placeholder="Search contributors">
+  <button class="primary-btn" onclick="openAddContributor()">+ Add Contributor</button>
+  <div id="contributorsList"></div>
 </section>
 
+<section id="contributorProfileScreen" class="app-section">
+  <button class="back-btn" onclick="showScreen('contributorsScreen')">← Back</button>
+  <h2>Contributor</h2>
+  <div id="contributorProfile"></div>
+</section>
 
-<!-- =========================
-     ADD CONTRIBUTOR MODAL
-========================= -->
-<div id="contributorModal" class="modal-overlay" style="display:none;">
+<section id="calendarScreen" class="app-section">
+  <button class="back-btn" onclick="backToContributorProfile()">← Back</button>
+  <h2 id="calendarContributorName">Calendar</h2>
 
-    <div class="modal-card">
+  <div class="calendar-head">
+    <button onclick="previousMonth()">‹</button>
+    <strong id="calendarMonth"></strong>
+    <button onclick="nextMonth()">›</button>
+  </div>
 
-        <button class="modal-close" onclick="closeAddContributor()">×</button>
+  <div class="calendar-info">
+    <span>Daily: <b id="calendarDailyAmount">₦0</b></span>
+    <span>Paid: <b id="calendarPaidDays">0</b></span>
+    <span>Total: <b id="calendarTotalAmount">₦0</b></span>
+  </div>
 
-        <div class="modal-header">
-            <div class="small-mark">+</div>
-            <h2>Add Contributor</h2>
-            <p>Set up their daily contribution.</p>
-        </div>
+  <div id="calendarDays" class="calendar-grid"></div>
+  <button class="secondary-btn" onclick="makePayout()">Pay Out</button>
+</section>
 
-        <form id="contributorForm">
+<section id="paymentsScreen" class="app-section">
+  <h2>Payments</h2>
+  <div class="filter-tabs">
+    <button onclick="setPaymentFilter('all')">All</button>
+    <button onclick="setPaymentFilter('today')">Today</button>
+  </div>
+  <div id="paymentsList"></div>
+</section>
 
-            <label>Contributor Name</label>
-            <input
-                type="text"
-                id="contributorName"
-                placeholder="Enter full name"
-            >
+<section id="payoutsScreen" class="app-section">
+  <h2>Payouts</h2>
+  <div class="stats">
+    <div class="stat"><small>Pending</small><strong id="payoutPendingTotal">₦0</strong></div>
+    <div class="stat"><small>Completed</small><strong id="payoutCompletedTotal">₦0</strong></div>
+  </div>
+  <div id="payoutsList"></div>
+</section>
 
-            <label>Phone Number</label>
-            <input
-                type="tel"
-                id="contributorPhone"
-                placeholder="08012345678"
-            >
+<section id="reportsScreen" class="app-section">
+  <h2>Reports</h2>
+  <div class="stats">
+    <div class="stat"><small>Total Received</small><strong id="reportReceived">₦0</strong></div>
+    <div class="stat"><small>Disbursed</small><strong id="reportDisbursed">₦0</strong></div>
+    <div class="stat"><small>Your Earnings</small><strong id="reportEarnings">₦0</strong></div>
+    <div class="stat"><small>Outstanding</small><strong id="reportOutstanding">₦0</strong></div>
+  </div>
+</section>
 
-            <label>Daily Contribution</label>
-            <div class="money-input">
-                <span>₦</span>
-                <input
-                    type="number"
-                    id="contributorDaily"
-                    placeholder="1000"
-                    min="1"
-                >
-            </div>
+<section id="notificationsScreen" class="app-section">
+  <h2>Notifications</h2>
+  <div class="card">No new notifications.</div>
+</section>
 
-            <button type="submit" class="primary-btn">
-                Add Contributor
-            </button>
+<section id="settingsScreen" class="app-section">
+  <h2>Settings</h2>
 
-        </form>
+  <div class="card">
+    <label>Organizer Name</label>
+    <input id="settingsOrganizerName">
 
-    </div>
+    <label>Your Name</label>
+    <input id="settingsPersonalName">
+
+    <label>Phone</label>
+    <input id="settingsPhone" type="tel">
+
+    <button class="primary-btn" onclick="saveSettings()">Save Settings</button>
+    <button class="secondary-btn" onclick="logoutAccount()">Log Out</button>
+  </div>
+
+  <div class="card">
+    <p>Group: <b id="settingsGroupText"></b></p>
+    <p>Name: <b id="settingsNameText"></b></p>
+  </div>
+</section>
+
+</main>
+
+<nav class="bottom-nav">
+  <button onclick="showScreen('dashboardScreen')">Home</button>
+  <button onclick="showScreen('contributorsScreen')">People</button>
+  <button onclick="showScreen('paymentsScreen')">Payments</button>
+  <button onclick="showScreen('payoutsScreen')">Payouts</button>
+  <button onclick="showScreen('reportsScreen')">Reports</button>
+  <button onclick="showScreen('settingsScreen');loadSettings()">Settings</button>
+</nav>
 
 </div>
 
-
-<!-- =========================
-     DAY PAYMENT MODAL
-========================= -->
-<div id="paymentModal" class="modal-overlay" style="display:none;">
-
-    <div class="modal-card payment-modal">
-
-        <button class="modal-close" onclick="closePaymentModal()">×</button>
-
-        <div class="payment-date-icon">₦</div>
-
-        <h2 id="paymentModalTitle">Mark Payment</h2>
-
-        <p id="paymentModalText">
-            Record this day's contribution.
-        </p>
-
-        <div class="payment-amount-box">
-            <span>Amount</span>
-            <strong id="paymentModalAmount">₦0</strong>
-        </div>
-
-        <button id="confirmPaymentBtn"
-                class="primary-btn">
-            Mark as Paid
-        </button>
-
-        <button class="cancel-btn"
-                onclick="closePaymentModal()">
-            Cancel
-        </button>
-
-    </div>
-
+<div id="contributorModal" class="modal-overlay">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeAddContributor()">×</button>
+    <h2>Add Contributor</h2>
+    <form id="contributorForm">
+      <input id="contributorName" placeholder="Contributor name" required>
+      <input id="contributorPhone" type="tel" placeholder="Phone number" required>
+      <input id="contributorDaily" type="number" value="50" min="1" placeholder="Daily amount">
+      <button class="primary-btn" type="submit">Add Contributor</button>
+    </form>
+  </div>
 </div>
 
+<div id="paymentModal" class="modal-overlay">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closePaymentModal()">×</button>
+    <div class="payment-date-icon">₦</div>
+    <h2 id="paymentModalTitle">Mark Payment</h2>
+    <p id="paymentModalText">Record this day's contribution.</p>
+    <div class="payment-amount-box">
+      <span>Amount</span>
+      <strong id="paymentModalAmount">₦0</strong>
+    </div>
+    <button id="confirmPaymentBtn" class="primary-btn">Mark as Paid</button>
+    <button class="cancel-btn" onclick="closePaymentModal()">Cancel</button>
+  </div>
+</div>
 
 <script src="app.js"></script>
-
 </body>
-  </html>
+    </html>
