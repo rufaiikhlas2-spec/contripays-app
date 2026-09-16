@@ -459,3 +459,13 @@ function addEditButton(){
 document.addEventListener("DOMContentLoaded",function(){
   setTimeout(addEditButton,500);
 });
+document.addEventListener("DOMContentLoaded",function(){
+  let w=$("welcomeScreen");
+  if(w&&!$("developerCredit")){
+    let p=document.createElement("p");
+    p.id="developerCredit";
+    p.textContent="Developed by Rufai Ikhlas Ajibola";
+    p.style.cssText="text-align:center;font-size:13px;opacity:.7;margin:15px 0";
+    w.appendChild(p);
+  }
+});
