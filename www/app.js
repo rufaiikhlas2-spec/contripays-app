@@ -218,3 +218,254 @@ function getBalance(c){
 
  return Math.max(0,total);
 }
+function renderContributors(){
+ var u=user();
+ var box=$("contributorsList");
+ if(!box||!u)return;
+
+ var list=u.contributors||[];
+
+ if(!list.length){
+  box.innerHTML="<p>No contributors yet.</p>";
+  return;
+ }
+
+ box.innerHTML=list.map(function(c){
+  return '<div class="contributor-card" onclick="openContributorProfile('+c.id+')">'+
+   '<div><strong>'+escapeHtml(c.name)+'</strong><br><small>'+escapeHtml(c.phone)+'</small></div>'+
+   '<div><strong>'+money(getBalance(c))+'</strong><br><small>Balance</small></div>'+
+  '</div>';
+ }).join("");
+}
+
+function filterContributors(){
+ var q=($("contributorSearch").value||"").toLowerCase();
+ document.querySelectorAll(".contributor-card").forEach(function(card){
+  card.style.display=card.innerText.toLowerCase().includes(q)?"flex":"none";
+ });
+}
+
+function openContributorProfile(id){
+ selectedContributorId=id;
+ var c=findContributor(id);
+ var box=$("contributorProfile");
+
+ if(!c||!box)return;
+
+ var payments=c.payments||[];
+ var paid=payments.reduce(function(s,p){
+  return s+(Number(p.amount)||0);
+ },0);
+
+ box.innerHTML=
+ '<div class="profile-card">'+
+ '<h2>'+escapeHtml(c.name)+'</h2>'+
+ '<p>'+escapeHtml(c.phone)+'</p>'+
+ '<p>Daily contribution: <strong>'+money(c.daily)+'</strong></p>'+
+ '<p>Total paid: <strong>'+money(paid)+'</strong></p>'+
+ '<p>Current balance: <strong>'+money(getBalance(c))+'</strong></p>'+
+ '<button class="primary-btn" onclick="openCalendar('+c.id+')">Open Calendar</button>'+
+ '<button class="primary-btn" onclick="makeContributorPayout('+c.id+')">Pay Out</button>'+
+ '</div>';
+
+ showScreen("contributorProfileScreen");
+}
+
+function recordPayment(c,date){
+ if(!c)return;
+
+ if(!c.payments)c.payments=[];
+
+ if(c.payments.some(function(p){return p.date===date;})){
+  return false;
+ }
+
+ c.payments.push({
+  date:date,
+  amount:Number(c.daily)||50
+ });
+
+ save();
+ return true;
+}
+
+function choosePaymentContributor(){
+ var u=user();
+ if(!u||!u.contributors||!u.contributors.length){
+  alert("Add a contributor first.");
+  return;
+ }
+
+ var names=u.contributors.map(function(c,i){
+  return (i+1)+". "+c.name;
+ }).join("\n");
+
+ var choice=prompt("Choose contributor:\n\n"+names);
+
+ if(!choice)return;
+
+ var index=Number(choice)-1;
+ var c=u.contributors[index];
+
+ if(!c){
+  alert("Invalid choice.");
+  return;
+ }
+
+ if(recordPayment(c,today())){
+  renderPayments();
+  updateDashboard();
+  alert("Payment recorded.");
+ }else{
+  alert("Payment already recorded for today.");
+ }
+}
+
+function renderPayments(){
+ var u=user();
+ var box=$("paymentsList");
+ if(!box||!u)return;
+
+ var rows=[];
+
+ (u.contributors||[]).forEach(function(c){
+  (c.payments||[]).forEach(function(p){
+   rows.push({
+    name:c.name,
+    date:p.date,
+    amount:p.amount
+   });
+  });
+ });
+
+ if(paymentFilter!=="all"){
+  rows=rows.filter(function(p){
+   if(paymentFilter==="today")return p.date===today();
+   return true;
+  });
+ }
+
+ rows.sort(function(a,b){
+  return b.date.localeCompare(a.date);
+ });
+
+ if(!rows.length){
+  box.innerHTML="<p>No payments found.</p>";
+  return;
+ }
+
+ box.innerHTML=rows.map(function(p){
+  return '<div class="payment-row">'+
+   '<div><strong>'+escapeHtml(p.name)+'</strong><br><small>'+p.date+'</small></div>'+
+   '<strong>'+money(p.amount)+'</strong>'+
+  '</div>';
+ }).join("");
+}
+
+function setPaymentFilter(filter){
+ paymentFilter=filter;
+ renderPayments();
+}
+
+function makeContributorPayout(id){
+ var c=findContributor(id);
+ if(!c)return;
+
+ var balance=getBalance(c);
+
+ if(balance<=0){
+  alert("This contributor has no available balance.");
+  return;
+ }
+
+ var amount=prompt(
+  "Available balance: "+money(balance)+"\n\nEnter payout amount:"
+ );
+
+ if(amount===null)return;
+
+ amount=Number(amount);
+
+ if(!amount||amount<=0){
+  alert("Enter a valid amount.");
+  return;
+ }
+
+ if(amount>balance){
+  alert("Payout cannot be greater than the balance.");
+  return;
+ }
+
+ if(!c.payouts)c.payouts=[];
+
+ c.payouts.push({
+  id:Date.now(),
+  date:today(),
+  amount:amount,
+  contributorId:c.id
+ });
+
+ save();
+
+ renderPayouts();
+ renderContributors();
+ updateDashboard();
+
+ alert("Payout recorded successfully.");
+}
+
+function makePayout(){
+ if(selectedContributorId){
+  makeContributorPayout(selectedContributorId);
+ }else{
+  alert("Open a contributor profile first.");
+ }
+}
+
+function renderPayouts(){
+ var u=user();
+ var box=$("payoutsList");
+
+ if(!box||!u)return;
+
+ var rows=[];
+
+ (u.contributors||[]).forEach(function(c){
+  (c.payouts||[]).forEach(function(p){
+   rows.push({
+    name:c.name,
+    date:p.date,
+    amount:p.amount
+   });
+  });
+ });
+
+ var pending=0;
+
+ (u.contributors||[]).forEach(function(c){
+  pending+=getBalance(c);
+ });
+
+ var completed=rows.reduce(function(s,p){
+  return s+(Number(p.amount)||0);
+ },0);
+
+ if($("payoutPendingTotal"))$("payoutPendingTotal").textContent=money(pending);
+ if($("payoutCompletedTotal"))$("payoutCompletedTotal").textContent=money(completed);
+
+ if(!rows.length){
+  box.innerHTML="<p>No payouts recorded.</p>";
+  return;
+ }
+
+ rows.sort(function(a,b){
+  return b.date.localeCompare(a.date);
+ });
+
+ box.innerHTML=rows.map(function(p){
+  return '<div class="payment-row">'+
+   '<div><strong>'+escapeHtml(p.name)+'</strong><br><small>'+p.date+'</small></div>'+
+   '<strong>'+money(p.amount)+'</strong>'+
+  '</div>';
+ }).join("");
+                    }
